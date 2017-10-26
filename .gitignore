@@ -1,0 +1,15 @@
+*.class
+*.log
+*.iml
+*.ipr
+*.iws
+hs_err_pid*
+
+.DS_Store
+.gradle
+.idea
+
+/build/
+/out/
+/src/main/resources/info.properties
+/src/main/protoGen

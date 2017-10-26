@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package revinate;
+
+option java_package = "com.revinate.demo";
+option java_outer_classname = "DemoProto";
+option java_multiple_files = true;
+
+service DemoService {
+  rpc Fibonacci(FibonacciRequest) returns (FibonacciResponse) {}
+
+  rpc Factorial(FactorialRequest) returns (FactorialResponse) {}
+}
+
+message FibonacciRequest {
+  int32 value = 1;
+}
+
+message FibonacciResponse {
+  int32 value = 1;
+}
+
+message FactorialRequest {
+  int32 value = 1;
+}
+
+message FactorialResponse {
+  int32 value = 1;
+}

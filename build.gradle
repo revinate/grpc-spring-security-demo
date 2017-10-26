@@ -1,0 +1,118 @@
+buildscript {
+    ext {
+        springBootVersion = '1.5.6.RELEASE'
+        protobufGradlePluginVersion = '0.8.3'
+    }
+
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("com.google.protobuf:protobuf-gradle-plugin:${protobufGradlePluginVersion}")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'com.google.protobuf'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+version = '0.0.1-SNAPSHOT'
+
+repositories {
+    jcenter()
+}
+
+ext {
+    protocVersion = '3.3.0'
+    grpcVersion = '1.6.1'
+    grpcSpringBootVersion = '2.1.0'
+    assertjVersion = '3.8.0'
+    applicationName = 'grpc-spring-security-demo'
+    applicationDefaultJvmArgs = [
+            '-Xmx2g',
+            '-Xms1g',
+            "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=9080"
+    ]
+}
+
+jar {
+    baseName = applicationName
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/protoGen'
+        }
+    }
+}
+
+dependencies {
+    compile('org.springframework.boot:spring-boot-starter-web')
+    compile('org.springframework.boot:spring-boot-starter-actuator')
+    compile('org.springframework.boot:spring-boot-starter-security')
+    compile('org.springframework.boot:spring-boot-starter-jdbc')
+    compile('org.springframework.security.oauth:spring-security-oauth2')
+    compile('org.springframework.security:spring-security-jwt')
+    compile("io.grpc:grpc-protobuf:${grpcVersion}")
+    compile("io.grpc:grpc-stub:${grpcVersion}")
+    compile("io.grpc:grpc-netty:${grpcVersion}")
+    compile("org.lognet:grpc-spring-boot-starter:${grpcSpringBootVersion}")
+
+    compileOnly('org.projectlombok:lombok')
+
+    runtime('org.hsqldb:hsqldb')
+
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile("org.assertj:assertj-core:${assertjVersion}")
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${protocVersion}"
+    }
+
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
+        }
+    }
+
+    generateProtoTasks {
+        ofSourceSet('main').each { task ->
+            task.builtins {
+                java{
+                    outputSubDir = 'protoGen'
+                }
+            }
+
+            task.plugins {
+                grpc {
+                    outputSubDir = 'protoGen'
+                }
+            }
+        }
+    }
+
+    generatedFilesBaseDir = "${projectDir}/src/"
+}
+
+bootRun { task ->
+    systemProperty 'debug', true
+
+    if (project.hasProperty('args')) {
+        args project.args.split('\\s+')
+    }
+}
+
+task cleanProtoGen{
+    doFirst{
+        delete("${projectDir}/src/main/protoGen")
+    }
+}
+clean.dependsOn cleanProtoGen

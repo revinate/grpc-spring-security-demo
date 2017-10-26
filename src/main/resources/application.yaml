@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: grpc-spring-security-demo
+
+logging:
+  level:
+    com:
+      revinate:
+        grpcspringsecurity: DEBUG
+
+server:
+  port: 8080
+
+management:
+  context-path: /actuator
+  security:
+    enabled: true
+    roles: ADMIN
+
+security:
+  basic:
+    realm: gRPC Spring Security Demo
+  enable-csrf: false
+  oauth2:
+    resource:
+      jwt:
+        key-value: mypassword
+  sessions: stateless
+  user:
+    name: grpcspring
+    password: grpcspring
+    role: ADMIN
+
+grpc:
+  port: 7080
