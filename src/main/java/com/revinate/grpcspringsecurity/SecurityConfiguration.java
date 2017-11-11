@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @Configuration
 @Order(ManagementServerProperties.ACCESS_OVERRIDE_ORDER)
 @EnableResourceServer
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private SecurityProperties securityProperties;
