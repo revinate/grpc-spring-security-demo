@@ -65,8 +65,6 @@ dependencies {
 
     compileOnly('org.projectlombok:lombok')
 
-    runtime('org.hsqldb:hsqldb')
-
     testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile("org.assertj:assertj-core:${assertjVersion}")
 }

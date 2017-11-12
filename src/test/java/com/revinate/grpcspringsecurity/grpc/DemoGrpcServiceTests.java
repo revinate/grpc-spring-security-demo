@@ -6,9 +6,7 @@ import com.revinate.grpcspringsecurity.util.BasicAuthenticationCallCredentials;
 import io.grpc.*;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.lognet.springboot.grpc.autoconfigure.GRpcServerProperties;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,16 +16,13 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @TestPropertySource(properties = {"grpc.port: 15001"})
 public class DemoGrpcServiceTests {
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @MockBean
     private NumberService numberService;
@@ -74,11 +69,12 @@ public class DemoGrpcServiceTests {
 
     @Test
     public void fibonacci_shouldFailForUnauthenticatedCall() throws Exception {
-        expectedException.expect(StatusRuntimeException.class);
-        expectedException.expect(hasProperty("status", hasProperty("code", is(Status.Code.UNAUTHENTICATED))));
-
         DemoServiceGrpc.DemoServiceBlockingStub blockingStub = DemoServiceGrpc.newBlockingStub(channel);
-        blockingStub.fibonacci(FibonacciRequest.newBuilder().setValue(3).build());
-    }
 
+        assertThatThrownBy(() -> blockingStub.fibonacci(FibonacciRequest.newBuilder().setValue(3).build()))
+                .isInstanceOf(StatusRuntimeException.class)
+                .satisfies(exception ->
+                    assertThat(((StatusRuntimeException) exception).getStatus().getCode()).isEqualTo(Status.Code.UNAUTHENTICATED)
+                );
+    }
 }
