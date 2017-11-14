@@ -28,6 +28,16 @@ public class SecurityContextPersistenceInterceptor implements ServerInterceptor 
                     log.debug("SecurityContextHolder now cleared, as request processing completed");
                 }
             }
+
+            @Override
+            public void onCancel() {
+                try {
+                    super.onCancel();
+                } finally {
+                    SecurityContextHolder.clearContext();
+                    log.debug("SecurityContextHolder now cleared, as request processing was canceled");
+                }
+            }
         };
     }
 }
