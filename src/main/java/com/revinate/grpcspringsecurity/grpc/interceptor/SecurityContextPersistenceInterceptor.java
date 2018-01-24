@@ -17,27 +17,32 @@ public class SecurityContextPersistenceInterceptor implements ServerInterceptor 
             ServerCall<ReqT, RespT> call,
             Metadata headers,
             ServerCallHandler<ReqT, RespT> next) {
-        ServerCall.Listener<ReqT> delegate = next.startCall(call, headers);
-        return new SimpleForwardingServerCallListener<ReqT>(delegate) {
-            @Override
-            public void onComplete() {
-                try {
-                    super.onComplete();
-                } finally {
-                    SecurityContextHolder.clearContext();
-                    log.debug("SecurityContextHolder now cleared, as request processing completed");
+        try {
+            ServerCall.Listener<ReqT> delegate = next.startCall(call, headers);
+            return new SimpleForwardingServerCallListener<ReqT>(delegate) {
+                @Override
+                public void onComplete() {
+                    try {
+                        super.onComplete();
+                    } finally {
+                        SecurityContextHolder.clearContext();
+                        log.debug("SecurityContextHolder now cleared, as request processing completed");
+                    }
                 }
-            }
 
-            @Override
-            public void onCancel() {
-                try {
-                    super.onCancel();
-                } finally {
-                    SecurityContextHolder.clearContext();
-                    log.debug("SecurityContextHolder now cleared, as request processing was canceled");
+                @Override
+                public void onCancel() {
+                    try {
+                        super.onCancel();
+                    } finally {
+                        SecurityContextHolder.clearContext();
+                        log.debug("SecurityContextHolder now cleared, as request processing was canceled");
+                    }
                 }
-            }
-        };
+            };
+        } catch (Throwable t) {
+            SecurityContextHolder.clearContext();
+            throw t;
+        }
     }
 }
